@@ -116,10 +116,6 @@ int main(int argc, char *argv[])
     EulerAngles e;
     const float degree = 57.295779; // radian to degree constant
 
-    
-
-    ///////////////////////////////////////////////////////
-
 
     Back *back = new Back;
 
@@ -134,25 +130,6 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-
-    //float angle{0};
-    //float airSpeed{30};
-    //float verticalSpeed{-15};
-    //float pitch{20};
-//
-    //while(angle<360){
-    //    back->changeSpeed(angle);
-    //    back->changeAltitude(100);
-    //    back->changeRoll(angle);
-    //    back->changeYaw(angle);
-    //    back->changePitch(pitch);
-    //    back->changeVertical(verticalSpeed);
-    //    angle+=20;
-    //    delay(100);
-    //    
-    //}
-
-    ///////////////////////////////////////////////////////
 
     while(true){
 
@@ -177,7 +154,7 @@ int main(int argc, char *argv[])
         q.w = pose.pose.orientation.w; 
         e = ToEulerAngles(q);
 
-        ROS_INFO("pitch: %.2f\naltitude %.2f",e.pitch*57.3 ,(newZ - z)*5*5/3);
+        //ROS_INFO("pitch: %.2f\naltitude %.2f",e.pitch*57.3 ,(newZ - z)*5*5/3);
 
         back->changeSpeed(airSpeedKnot);
         back->changeVertical((newZ - z)*5*5/3); // 5/3 to convert from feet/sec to 100feet/min
