@@ -75,11 +75,6 @@ void Back::changeVertical(float vertical){
             verticalChanged(vertical);
 
         }
-    }else if(vertical < 1 && vertical > -1){
-
-        vertical = 0;
-        verticalChanged(vertical);
-
     }else{
         vertical *= 8.13;
         vertical += 360;
