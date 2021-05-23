@@ -1,0 +1,2 @@
+basict
+-DCATKIN_DEVEL_PREFIX=/home/mert/QTProjects/Instrument/devel -DCMAKE_INSTALL_PREFIX=/home/mert/QTProjects/Instrument/install -G Unix Makefiles

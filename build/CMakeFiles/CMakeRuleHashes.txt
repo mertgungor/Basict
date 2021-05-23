@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+8ff33793d524a6d9885236bda4b1959e CMakeFiles/clean_test_results
+f8105a41debaa6ddb0c306c05e72d024 basict/CMakeFiles/basict_autogen
