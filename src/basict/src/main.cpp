@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
     EulerAngles e;
     const float degree = 57.295779; // radian to degree constant
 
+    
 
     Back *back = new Back;
 
@@ -161,7 +162,8 @@ int main(int argc, char *argv[])
         back->changeRoll(e.roll*degree);
         back->changeYaw(45);//e.yaw*degree);
         back->changePitch(e.pitch*degree);
-        back->changeAltitude(newZ*100);
+        back->changeAltitude(newZ);
+        //back->changeAltitude1000(4);
         ros::spinOnce();
 
 
