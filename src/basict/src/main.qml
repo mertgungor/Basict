@@ -150,7 +150,7 @@ Window {
 
             Connections{
                 target: back
-                onAltitudeChanged: altimeter_hand_10000ft.rotation = altitude;
+                onAltitudeChanged10000: altimeter_hand_10000ft.rotation = altitude10000;
             }
 
             Behavior on rotation { NumberAnimation { duration: 50 } } 
@@ -161,6 +161,7 @@ Window {
             x:399 ; y:0
             width:401
             height:401
+            rotation: 0
 
             Connections{
                 target: back
@@ -175,6 +176,7 @@ Window {
             x:400 ; y:0
             width:400
             height:400
+            rotation: 0
 
             Connections{
                 target: back
