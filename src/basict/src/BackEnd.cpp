@@ -20,26 +20,27 @@ void Back::changeSpeed(float speed){
 }
 
 void Back::changeAltitude(float altitude){
-    altitudeChanged(altitude*36/100);
-    int ft10000 = static_cast<int>(altitude/10000);
+    //altitudeChanged(altitude*36/100);
+    int ft10000 = static_cast<int>(altitude)/10000;    
     altitude -= ft10000*10000;
-    int ft1000 = static_cast<int>(altitude/1000);
+    int ft1000 = static_cast<int>(altitude)/1000;
     altitude -= ft1000*1000;
-    float ft100 = ft100/100;
-    altitudeChanged100(ft100);
-    altitudeChanged1000(ft1000);
+    float ft100 = altitude/100;
+    changeAltitude100(ft100);
+    changeAltitude1000(ft1000);
+    changeAltitude10000(ft10000);
 }
 
 void Back::changeAltitude100(float altitude100){
-    altitudeChanged(altitude100);
+    altitudeChanged100(altitude100*36);
 }
 
 void Back::changeAltitude1000(float altitude1000){
-    altitudeChanged(altitude1000);
+    altitudeChanged1000(altitude1000*36);
 }
 
 void Back::changeAltitude10000(float altitude10000){
-    altitudeChanged(altitude10000);
+    altitudeChanged10000(altitude10000*36);
 }
 
 void Back::changeRoll(float roll){
