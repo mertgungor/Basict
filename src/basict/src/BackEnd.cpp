@@ -52,7 +52,7 @@ void Back::changeYaw(float yaw){
 }
 
 void Back::changePitch(float pitch){
-    pitchChanged(pitch*2);
+    pitchChanged(pitch);
 }
 
 void Back::changeVertical(float vertical){
