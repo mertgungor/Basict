@@ -2,6 +2,9 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QTime>
+#include <QSize>
+#include <QRect>
+#include <QScreen>
 
 #include "BackEnd.h"
 
@@ -85,7 +88,7 @@ int main(int argc, char *argv[])
         ("mavros/local_position/pose",10, pose_tracker);
 
     float const knot = 5280/3600; //constant for converting 1feet/sec to mile/hour(knot)
-    int const br = 1; // 1br = 1feet
+    float const br = 3.2808; // 1br = 1 meter = 3.28 feet
     int ms = 200; // miliseconds to wait before updating UI
 
     float x = pose.pose.position.x; // current position of the drone
@@ -123,7 +126,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
-
+    //QSize size = qApp->screens()[0]->size();
+    
+    
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("back",back);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
@@ -131,23 +136,29 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
+    float pitch;
 
     while(true){
+        QScreen *screen = QGuiApplication::primaryScreen();
+        int  height = screen->geometry().height();
+        //int height = screenGeometry.height();
+
+        //QSize size = qApp->screens()[0]->size();
+        //int height = size.height();
 
         newX = pose.pose.position.x;
         newY = pose.pose.position.y;
         newZ = pose.pose.position.z;
 
-        d = (newX*newX + newY*newY + newZ*newZ - x*x - y*y - z*z);
+        d = (newX*newX + newY*newY + newZ*newZ - x*x - y*y - z*z); 
         d = d < 0 ? -d : d;
         d = sqrt(d);
 
         
         delay(ms);
-        sec = ms / 1000; 
         airSpeedKnot = (d*br)*knot*5; // speed calculation
         
-
+        pitch = -20*height/400;
         
         q.x = pose.pose.orientation.x;
         q.y = pose.pose.orientation.y;
@@ -158,14 +169,13 @@ int main(int argc, char *argv[])
         //ROS_INFO("pitch: %.2f\naltitude %.2f",e.pitch*57.3 ,(newZ - z)*5*5/3);
 
         back->changeSpeed(airSpeedKnot);
-        back->changeVertical((newZ - z)*5*5/3); // 5/3 to convert from feet/sec to 100feet/min
+        back->changeVertical((newZ - z)*5*5/3); // 5/3 to convert from feet/sec to 100feet/min 
         back->changeRoll(e.roll*degree);
-        back->changeYaw(45);//e.yaw*degree);
+        back->changeYaw(e.yaw*degree);
         back->changePitch(e.pitch*degree);
         back->changeAltitude(newZ);
-        //back->changeAltitude1000(4);
         ros::spinOnce();
-
+        //ROS_INFO("%d",height);
 
         x = newX;
         y = newY;
