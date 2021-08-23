@@ -19,7 +19,6 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs mavros_msgs message
 
 
 catkin_package(
-  INCLUDE_DIRS include
   LIBRARIES basict
   CATKIN_DEPENDS roscpp stdmsgs
 #  DEPENDS system_lib
