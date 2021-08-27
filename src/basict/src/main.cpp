@@ -14,8 +14,10 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/State.h>
+#include <sensor_msgs/NavSatFix.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -66,6 +68,18 @@ void pose_tracker(const geometry_msgs::PoseStamped::ConstPtr& _pose){
     pose = *_pose;
 }
 
+sensor_msgs::NavSatFix navFix;
+
+void navFix_tracker(const sensor_msgs::NavSatFix::ConstPtr& _navFix){
+    navFix = *_navFix;
+}
+
+geometry_msgs::TwistStamped gps_vel;
+
+void gps_vel_tracker(const geometry_msgs::TwistStamped::ConstPtr& _gps_vel){
+    gps_vel = *_gps_vel;
+}
+
 // This holds the current state of the drone
 // Connected, the flight mode etc.
 mavros_msgs::State current_state;
@@ -82,13 +96,19 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh;
 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-            ("mavros/state", 10, state_tracker);
+        ("mavros/state", 10, state_tracker);
     
     ros::Subscriber position = nh.subscribe<geometry_msgs::PoseStamped>
         ("mavros/local_position/pose",10, pose_tracker);
+    
+    ros::Subscriber nav = nh.subscribe<sensor_msgs::NavSatFix>
+        ("mavros/global_position/global",10, navFix_tracker);
 
-    float const knot = 5280/3600; //constant for converting 1feet/sec to mile/hour(knot)
-    float const br = 3.2808; // 1br = 1 meter = 3.28 feet
+    ros::Subscriber nav = nh.subscribe<geometry_msgs::TwistStamped>
+        ("mavros/global_position/gp_vel",10, gps_vel_tracker);
+
+    double const knot = 5280/3600; //constant for converting 1feet/sec to mile/hour(knot)
+    double const br = 3.2808; // 1br = 1 meter = 3.28 feet
     int ms = 200; // miliseconds to wait before updating UI
 
     float x = pose.pose.position.x; // current position of the drone
@@ -98,7 +118,7 @@ int main(int argc, char *argv[])
     float newX{0}; // new position of the drone
     float newY{0};
     float newZ{0};
-    float d{0}; // distance
+    double v{0};
     float airSpeedKnot{0};
     float sec;
 
@@ -149,14 +169,15 @@ int main(int argc, char *argv[])
         newX = pose.pose.position.x;
         newY = pose.pose.position.y;
         newZ = pose.pose.position.z;
-
+        /*
         d = (newX*newX + newY*newY + newZ*newZ - x*x - y*y - z*z); 
         d = d < 0 ? -d : d;
         d = sqrt(d);
-
+        */
+        v = sqrt(gps_vel.twist.linear.x*gps_vel.twist.linear.x + gps_vel.twist.linear.y*gps_vel.twist.linear.y + gps_vel.twist.linear.z*gps_vel.twist.linear.z);
         
         delay(ms);
-        airSpeedKnot = (d*br)*knot*5; // speed calculation
+        airSpeedKnot = (v*br)*knot*5; // speed calculation
         
         pitch = -20*height/400;
         
@@ -169,11 +190,11 @@ int main(int argc, char *argv[])
         //ROS_INFO("pitch: %.2f\naltitude %.2f",e.pitch*57.3 ,(newZ - z)*5*5/3);
 
         back->changeSpeed(airSpeedKnot);
-        back->changeVertical((newZ - z)*5*5/3); // 5/3 to convert from feet/sec to 100feet/min 
+        back->changeVertical(gps_vel.twist.linear.z*5*5/3); // 5/3 to convert from feet/sec to 100feet/min 
         back->changeRoll(e.roll*degree);
         back->changeYaw(e.yaw*degree);
         back->changePitch(e.pitch*degree);
-        back->changeAltitude(newZ);
+        back->changeAltitude(navFix.altitude);
         ros::spinOnce();
         //ROS_INFO("%d",height);
 
