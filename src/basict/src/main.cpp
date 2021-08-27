@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     ros::Subscriber nav = nh.subscribe<sensor_msgs::NavSatFix>
         ("mavros/global_position/global",10, navFix_tracker);
 
-    ros::Subscriber nav = nh.subscribe<geometry_msgs::TwistStamped>
+    ros::Subscriber vel = nh.subscribe<geometry_msgs::TwistStamped>
         ("mavros/global_position/gp_vel",10, gps_vel_tracker);
 
     double const knot = 5280/3600; //constant for converting 1feet/sec to mile/hour(knot)
