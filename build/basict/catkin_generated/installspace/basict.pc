@@ -1,8 +1,0 @@
-prefix=/home/mert/QTProjects/Instrument/install
-
-Name: basict
-Description: Description of basict
-Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib -lbasict
-Requires: roscpp stdmsgs
