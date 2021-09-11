@@ -7,6 +7,8 @@ Back::Back(QObject *parent) : QObject(parent)
 
 void Back::changeSpeed(float speed){
 
+    (speed < 0)? speed = -speed : speed = speed;
+
     if(speed <= 40){
         speedChanged(speed*36/40);
         return;
@@ -48,6 +50,7 @@ void Back::changeRoll(float roll){
 }
 
 void Back::changeYaw(float yaw){
+    yaw -= 90;
     yawChanged(yaw);
 }
 
