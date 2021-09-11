@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
         ("mavros/global_position/global",10, navFix_tracker);
 
     ros::Subscriber vel = nh.subscribe<geometry_msgs::TwistStamped>
-        ("mavros/global_position/gp_vel",10, gps_vel_tracker);
+        ("mavros/global_position/raw/gps_vel",10, gps_vel_tracker);
 
     double const knot = 5280/3600; //constant for converting 1feet/sec to mile/hour(knot)
     double const br = 3.2808; // 1br = 1 meter = 3.28 feet
@@ -126,10 +126,13 @@ int main(int argc, char *argv[])
     ros::Rate rate(20.0);
 
     // wait for FCU connection
+    ROS_INFO("CONNECTING");
     while(ros::ok() && !current_state.connected){
         ros::spinOnce();
         rate.sleep();
     }
+
+    ROS_INFO("CONNECTED");
 
     if(current_state.connected){
         ROS_INFO("CONNECTED");
@@ -157,6 +160,7 @@ int main(int argc, char *argv[])
         return -1;
 
     float pitch;
+    float vz{0};
 
     while(true){
         QScreen *screen = QGuiApplication::primaryScreen();
@@ -165,7 +169,7 @@ int main(int argc, char *argv[])
 
         //QSize size = qApp->screens()[0]->size();
         //int height = size.height();
-
+        ros::spinOnce();
         newX = pose.pose.position.x;
         newY = pose.pose.position.y;
         newZ = pose.pose.position.z;
@@ -175,9 +179,13 @@ int main(int argc, char *argv[])
         d = sqrt(d);
         */
         v = sqrt(gps_vel.twist.linear.x*gps_vel.twist.linear.x + gps_vel.twist.linear.y*gps_vel.twist.linear.y + gps_vel.twist.linear.z*gps_vel.twist.linear.z);
+        ros::spinOnce();
+
+        //ROS_INFO("V: %.2f", v);
         
+
         delay(ms);
-        airSpeedKnot = (v*br)*knot*5; // speed calculation
+        airSpeedKnot = v*1.94; // speed calculation
         
         pitch = -20*height/400;
         
@@ -189,18 +197,22 @@ int main(int argc, char *argv[])
 
         //ROS_INFO("pitch: %.2f\naltitude %.2f",e.pitch*57.3 ,(newZ - z)*5*5/3);
 
+        ros::spinOnce();
+        vz = (newZ - z)*5*1,96;
+        //ROS_INFO("Vz: %f", vz);
         back->changeSpeed(airSpeedKnot);
-        back->changeVertical(gps_vel.twist.linear.z*5*5/3); // 5/3 to convert from feet/sec to 100feet/min 
-        back->changeRoll(e.roll*degree);
+        back->changeVertical(vz);        back->changeRoll(e.roll*degree);
         back->changeYaw(e.yaw*degree);
         back->changePitch(e.pitch*degree);
-        back->changeAltitude(navFix.altitude);
+        back->changeAltitude(navFix.altitude*(1,96)/20000);
+        //ROS_INFO("h: %f", navFix.altitude*3.28/20000);
         ros::spinOnce();
         //ROS_INFO("%d",height);
 
         x = newX;
         y = newY;
         z = newZ;
+        ros::spinOnce();
     }
 
     return app.exec();
